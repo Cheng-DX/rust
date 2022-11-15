@@ -6,7 +6,7 @@
 
 <h1 align="center">Rust</h1>
 
-<p align="center">Come to learn some <code>rust</code></p>
+<p align="center">Try to learn some <code>rust</code></p>
 
 <!-- PLAYGROUND -->
 <p align="center"><a href="">Online Playground</a></p>
