@@ -143,7 +143,7 @@ pub mod advanced {
 
         impl<'a, 'b> Interface<'a, 'b> {
             pub fn noop(self) {
-                println!("interface consumed");
+                println!("interface consumed {}", self.manager.text);
             }
         }
 
@@ -175,6 +175,34 @@ pub mod advanced {
         run();
     }
 
+    use std::{slice::from_raw_parts, str::from_utf8_unchecked};
+    pub fn t_static() {
+        fn get_memory_location() -> (usize, usize) {
+            let string = "Hello World";
+            let p = string.as_ptr() as usize;
+            let len = string.len();
+            (p, len)
+        }
+
+        fn get_str(p: usize, len: usize) -> &'static str {
+            unsafe { from_utf8_unchecked(from_raw_parts(p as *const u8, len)) }
+        }
+
+        fn run() {
+            let (pointer, length) = get_memory_location();
+            let message = get_str(pointer, length);
+            println!(
+                "The {} bytes at 0x{:X} stored: {}",
+                length, pointer, message
+            );
+            // segmentation fault
+            let message = get_str(1000, 10);
+            println!("{}", message);
+        }
+
+        run();
+    }
+
     pub fn test() {
         let mut map = HashMap::new();
         map.insert("i1", 8.0);
@@ -183,7 +211,14 @@ pub mod advanced {
         println!("{r}");
 
         run_tests(
-            vec![case1, lifetime_annotation, closure, reborrow, sample],
+            vec![
+                case1,
+                lifetime_annotation,
+                closure,
+                reborrow,
+                sample,
+                t_static,
+            ],
             "-",
         );
     }
