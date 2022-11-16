@@ -196,8 +196,8 @@ pub mod advanced {
                 length, pointer, message
             );
             // segmentation fault
-            let message = get_str(1000, 10);
-            println!("{}", message);
+            // let message = get_str(1000, 10);
+            // println!("{}", message);
         }
 
         run();
