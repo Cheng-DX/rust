@@ -4,6 +4,7 @@ mod lifecycle;
 mod option;
 mod refs;
 mod smart_pointer;
+mod thread;
 mod traits;
 mod types;
 mod utils;
@@ -14,6 +15,7 @@ use lifecycle::{advanced, basic, struct_in};
 use option::file;
 use refs::{self_refed_struct, weak};
 use smart_pointer::{box_pointer, cell, deref, drop, rc_arc};
+use thread::use_thread;
 use traits::post;
 use types::{enum_int, new_type, sized_dst};
 use utils::print_utils;
@@ -40,6 +42,7 @@ fn main() {
             cell::test,
             weak::test,
             self_refed_struct::test,
+            use_thread::test,
         ],
         "=",
     );
