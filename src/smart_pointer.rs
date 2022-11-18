@@ -158,7 +158,7 @@ pub mod rc_arc {
         let s = Arc::new(String::from("From Arc"));
         for _ in 0..10 {
             let inner = Arc::clone(&s);
-            let handle = thread::spawn(move || {
+            thread::spawn(move || {
                 println!("{inner}");
             });
         }

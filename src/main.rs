@@ -2,6 +2,7 @@ mod functional;
 mod heap;
 mod lifecycle;
 mod option;
+mod refs;
 mod smart_pointer;
 mod traits;
 mod types;
@@ -11,6 +12,7 @@ use functional::{closure, iterator};
 use heap::{map, vector};
 use lifecycle::{advanced, basic, struct_in};
 use option::file;
+use refs::{self_refed_struct, weak};
 use smart_pointer::{box_pointer, cell, deref, drop, rc_arc};
 use traits::post;
 use types::{enum_int, new_type, sized_dst};
@@ -36,6 +38,8 @@ fn main() {
             drop::test,
             rc_arc::test,
             cell::test,
+            weak::test,
+            self_refed_struct::test,
         ],
         "=",
     );
