@@ -1,11 +1,14 @@
 #[path = "./utils.rs"]
 mod utils;
-use std::thread;
-use std::time::Duration;
 use utils::print_utils::run_tests;
 
 pub mod use_thread {
-    use std::{thread, time::Duration};
+    use std::{
+        cell::Ref,
+        sync::{Arc, Barrier, Condvar, Mutex},
+        thread::{self, LocalKey},
+        time::Duration,
+    };
 
     use super::run_tests;
 
@@ -47,9 +50,81 @@ pub mod use_thread {
         handle.join().unwrap();
     }
 
-    fn barrier() {}
+    fn barrier() {
+        let mut handlers = Vec::with_capacity(6);
+        let barrier = Arc::new(Barrier::new(6));
+
+        for _ in 0..6 {
+            let b = barrier.clone();
+            handlers.push(thread::spawn(move || {
+                println!("before await");
+                thread::sleep(Duration::from_millis(100));
+                b.wait();
+                println!("after awiat");
+            }));
+        }
+        for handler in handlers {
+            handler.join().unwrap();
+        }
+    }
+
+    use std::cell::RefCell;
+    fn local_vars() {
+        thread_local! {
+            static FOO: RefCell<u32> = RefCell::new(1)
+        };
+
+        FOO.with(|f| {
+            assert_eq!(*f.borrow(), 1);
+            *f.borrow_mut() = 2;
+        });
+
+        let t = thread::spawn(move || {
+            FOO.with(|f| {
+                assert_eq!(*f.borrow(), 1);
+                *f.borrow_mut() = 3;
+            })
+        });
+
+        t.join().unwrap();
+
+        FOO.with(|f| {
+            assert_eq!(*f.borrow(), 2);
+        });
+
+        struct Item;
+        impl Item {
+            thread_local! {
+                static NAME: RefCell<usize> = RefCell::new(0);
+            }
+        }
+        Item::NAME.with(|x| println!("{:?}", x));
+
+        thread_local! {
+            static AGE: RefCell<usize> = RefCell::new(12);
+        }
+        struct Bar {
+            age: &'static LocalKey<RefCell<usize>>,
+        }
+        impl Bar {
+            fn new() -> Self {
+                Self { age: &AGE }
+            }
+        }
+
+        let bar = Bar::new();
+        bar.age.with(|age| println!("{:?}", age));
+    }
+
+    fn mutex() {
+        let pair = Arc::new((Mutex::new(false), Condvar::new()));
+        let pairs = pair.clone();
+    }
 
     pub fn test() {
-        run_tests(vec![spawn, wait, move_vars], "#");
+        run_tests(
+            vec![spawn, wait, move_vars, barrier, local_vars, mutex],
+            "#",
+        );
     }
 }
